@@ -1,0 +1,109 @@
+@page "/"
+
+<PageTitle>Dashboard - LIMS Enterprise</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Dashboard</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h6">Total Samples</MudText>
+            <MudText Typo="Typo.h3" Color="Color.Primary">1,247</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Success">+12% from last month</MudText>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h6">Active Tests</MudText>
+            <MudText Typo="Typo.h3" Color="Color.Secondary">342</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Warning">23 pending review</MudText>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h6">Completed Today</MudText>
+            <MudText Typo="Typo.h3" Color="Color.Success">87</MudText>
+            <MudText Typo="Typo.body2">95% within SLA</MudText>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h6">Instruments</MudText>
+            <MudText Typo="Typo.h3" Color="Color.Info">24</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Error">2 require calibration</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudGrid Class="mt-8">
+    <MudItem xs="12" md="8">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h5" GutterBottom="true">Recent Samples</MudText>
+            <MudTable Items="@recentSamples" Hover="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Sample #</MudTh>
+                    <MudTh>Customer</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Received</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Sample #">@context.SampleNumber</MudTd>
+                    <MudTd DataLabel="Customer">@context.Customer</MudTd>
+                    <MudTd DataLabel="Status">
+                        <MudChip Color="@GetStatusColor(context.Status)" Size="Size.Small">@context.Status</MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Received">@context.ReceivedDate.ToShortDateString()</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" md="4">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h5" GutterBottom="true">Alerts</MudText>
+            <MudList>
+                <MudListItem Icon="@Icons.Material.Filled.Warning" IconColor="Color.Warning">
+                    3 samples approaching due date
+                </MudListItem>
+                <MudListItem Icon="@Icons.Material.Filled.Error" IconColor="Color.Error">
+                    2 instruments require calibration
+                </MudListItem>
+                <MudListItem Icon="@Icons.Material.Filled.Info" IconColor="Color.Info">
+                    5 inventory items below reorder level
+                </MudListItem>
+            </MudList>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<SampleSummary> recentSamples = new()
+    {
+        new SampleSummary { SampleNumber = "SMP-2024-001", Customer = "Acme Pharmaceuticals", Status = "Testing", ReceivedDate = DateTime.Today.AddDays(-1) },
+        new SampleSummary { SampleNumber = "SMP-2024-002", Customer = "BioTech Solutions", Status = "Under Review", ReceivedDate = DateTime.Today.AddDays(-2) },
+        new SampleSummary { SampleNumber = "SMP-2024-003", Customer = "Global Chemical Corp", Status = "Completed", ReceivedDate = DateTime.Today.AddDays(-3) },
+        new SampleSummary { SampleNumber = "SMP-2024-004", Customer = "Acme Pharmaceuticals", Status = "In Progress", ReceivedDate = DateTime.Today.AddDays(-1) },
+        new SampleSummary { SampleNumber = "SMP-2024-005", Customer = "BioTech Solutions", Status = "Registered", ReceivedDate = DateTime.Today }
+    };
+
+    private Color GetStatusColor(string status) => status switch
+    {
+        "Registered" => Color.Default,
+        "In Progress" => Color.Info,
+        "Testing" => Color.Primary,
+        "Under Review" => Color.Warning,
+        "Completed" => Color.Success,
+        _ => Color.Default
+    };
+
+    private class SampleSummary
+    {
+        public string SampleNumber { get; set; } = string.Empty;
+        public string Customer { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime ReceivedDate { get; set; }
+    }
+}

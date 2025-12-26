@@ -1,0 +1,125 @@
+@page "/samples"
+
+<PageTitle>Samples - LIMS Enterprise</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Sample Management</MudText>
+
+<MudPaper Elevation="2" Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudTextField @bind-Value="searchString" Placeholder="Search samples..." Adornment="Adornment.Start"
+                         AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect T="string" Label="Status" @bind-Value="selectedStatus">
+                <MudSelectItem Value="@("All")">All</MudSelectItem>
+                <MudSelectItem Value="@("Registered")">Registered</MudSelectItem>
+                <MudSelectItem Value="@("In Progress")">In Progress</MudSelectItem>
+                <MudSelectItem Value="@("Testing")">Testing</MudSelectItem>
+                <MudSelectItem Value="@("Completed")">Completed</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudDatePicker Label="From Date" @bind-Date="fromDate" />
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                      FullWidth="true" OnClick="CreateNewSample">
+                New Sample
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudTable Items="@samples" Hover="true" Striped="true" Loading="@loading" LoadingProgressColor="Color.Primary">
+    <HeaderContent>
+        <MudTh>Sample Number</MudTh>
+        <MudTh>Batch Number</MudTh>
+        <MudTh>Customer</MudTh>
+        <MudTh>Type</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Received</MudTh>
+        <MudTh>Due Date</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Sample Number">
+            <MudLink Href="@($"/samples/{context.Id}")">@context.SampleNumber</MudLink>
+        </MudTd>
+        <MudTd DataLabel="Batch Number">@context.BatchNumber</MudTd>
+        <MudTd DataLabel="Customer">@context.Customer</MudTd>
+        <MudTd DataLabel="Type">@context.Type</MudTd>
+        <MudTd DataLabel="Status">
+            <MudChip Color="@GetStatusColor(context.Status)" Size="Size.Small">@context.Status</MudChip>
+        </MudTd>
+        <MudTd DataLabel="Received">@context.ReceivedDate.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Due Date">@(context.DueDate?.ToShortDateString() ?? "N/A")</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" />
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private bool loading = false;
+    private string searchString = "";
+    private string selectedStatus = "All";
+    private DateTime? fromDate;
+
+    private List<SampleDto> samples = new()
+    {
+        new SampleDto
+        {
+            Id = Guid.NewGuid(),
+            SampleNumber = "SMP-2024-001",
+            BatchNumber = "BATCH-001",
+            Customer = "Acme Pharmaceuticals",
+            Type = "Raw Material",
+            Status = "Testing",
+            ReceivedDate = DateTime.Today.AddDays(-1),
+            DueDate = DateTime.Today.AddDays(7)
+        },
+        new SampleDto
+        {
+            Id = Guid.NewGuid(),
+            SampleNumber = "SMP-2024-002",
+            BatchNumber = "BATCH-002",
+            Customer = "BioTech Solutions",
+            Type = "Finished Product",
+            Status = "Under Review",
+            ReceivedDate = DateTime.Today.AddDays(-2),
+            DueDate = DateTime.Today.AddDays(5)
+        }
+    };
+
+    private Color GetStatusColor(string status) => status switch
+    {
+        "Registered" => Color.Default,
+        "In Progress" => Color.Info,
+        "Testing" => Color.Primary,
+        "Under Review" => Color.Warning,
+        "Completed" => Color.Success,
+        _ => Color.Default
+    };
+
+    private void CreateNewSample()
+    {
+        // Navigate to create sample page
+    }
+
+    private class SampleDto
+    {
+        public Guid Id { get; set; }
+        public string SampleNumber { get; set; } = string.Empty;
+        public string BatchNumber { get; set; } = string.Empty;
+        public string Customer { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime ReceivedDate { get; set; }
+        public DateTime? DueDate { get; set; }
+    }
+}
